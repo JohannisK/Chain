@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Getting Started: Serving Web Content</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/jchain.js"></script>
+</head>
+<body>
+<div>
+    <form action="#" th:action="@{/}" th:object="${message}" method="post">
+        <p>Index: <input type="text" th:field="*{index}"/></p>
+        <p> Text: <input type="text" th:field="*{text}"/></p>
+        <p><input type="submit" value="Submit"/> <input type="reset" value="Reset"/></p>
+    </form>
+</div>
+
+<div class="report" th:each="str:${hosts}" th:attr="data-host=${str}">
+    <p th:text="${str}"/>
+    <p>BlockChain:</p>
+    <div class="blockChain"></div>
+    <p>Orphaned Blocks:</p>
+    <div class="orphanedBlocks"></div>
+    <p>Unprocessed Messages:</p>
+    <div class="newMessages"></div>
+</div>
+
+<style>
+    .report {
+        width:30%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .report .blockChain {
+        border: 1px solid black;
+        padding: 10px;
+    }
+
+    .report .orphanedBlocks {
+        border: 1px solid black;
+        padding: 10px;
+    }
+
+    .block {
+        border: 1px solid grey;
+        line-height: 0;
+    }
+
+    .blockChain .block {
+        background-color: lightgreen;
+        padding: 10px;
+    }
+
+    .orphanedBlocks .block {
+        background-color: orangered;
+        padding: 10px;
+    }
+</style>
+</body>
+</html>

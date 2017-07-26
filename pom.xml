@@ -19,6 +19,7 @@
     <modules>
         <module>node</module>
         <module>eureka</module>
+        <module>inputsim</module>
     </modules>
 
     <properties>

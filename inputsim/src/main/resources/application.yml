@@ -1,6 +1,6 @@
 spring:
   application:
-    name: jchain-node
+    name: jchain-input
 
 eureka:
   instance:
@@ -11,4 +11,4 @@ eureka:
     instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 
 server:
-  port: 0
+  port: 8080
