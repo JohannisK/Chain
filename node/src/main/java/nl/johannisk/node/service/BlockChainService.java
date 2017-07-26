@@ -11,45 +11,55 @@ import nl.johannisk.node.service.model.TreeNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.netflix.appinfo.AmazonInfo.MetaDataKey.instanceId;
 
 @Service
 public class BlockChainService {
 
-    @Value("{eureka.instance.instanceId}")
+    @Value("${eureka.instance.instanceId}")
     String instanceId;
 
-    final List<Message> unhandledMessages;
-    final List<Message> handledMessages;
+    final Set<Message> unhandledMessages;
+    final Set<Message> handledMessages;
     final BlockChain chain;
+    private BlockCreatorService blockCreatorService;
     private final EurekaClient eurekaClient;
     private final TaskExecutor executor;
-    BlockCreatorTask blockCreator;
+    Random random;
 
     @Autowired
-    public BlockChainService(EurekaClient eurekaClient, TaskExecutor executor) {
+    public BlockChainService(BlockCreatorService blockCreatorService, EurekaClient eurekaClient, TaskExecutor executor) {
+        this.blockCreatorService = blockCreatorService;
         this.eurekaClient = eurekaClient;
         this.executor = executor;
-        unhandledMessages = new ArrayList<>();
-        handledMessages = new ArrayList<>();
+        unhandledMessages = new HashSet<>();
+        handledMessages = new HashSet<>();
         chain = new BlockChain();
+        random = new Random();
+    }
+
+    public BlockChain getChain() {
+        return chain;
+    }
+
+    public Set<Message> getUnprocessedMessages() {
+        return unhandledMessages;
     }
 
     public void addMessage(Message m) {
         if(!handledMessages.contains(m) && !unhandledMessages.contains(m)) {
             unhandledMessages.add(m);
             if(unhandledMessages.size() >= 5) {
-                List<Message> blockContent = pickMessagesForPotentialBlock();
-                if(blockCreator == null) {
-                    createBlock(blockContent);
+                if(blockCreatorService.state == BlockCreatorService.State.READY) {
+                    Set<Message> blockContent = pickMessagesForPotentialBlock();
+                    blockCreatorService.createBlock(chain.getEndBlock().getData(), blockContent, this::addCreatedBlock);
                 }
             }
         }
@@ -61,123 +71,64 @@ public class BlockChainService {
             String lastBlockHash = chain.getEndBlock().getData().getHash();
             chain.addBlock(b);
             if(!chain.getEndBlock().getData().getHash().equals(lastBlockHash)) {
-                if(blockCreator != null) {
-                    blockCreator.cancel();
+                if(blockCreatorService.state == BlockCreatorService.State.RUNNING) {
+                    blockCreatorService.state = BlockCreatorService.State.CANCELLED;
                 }
-                unhandledMessages.addAll(handledMessages);
-                handledMessages.clear();
-                TreeNode<Block> block = chain.getEndBlock();
-                do {
-                    for(Message m : block.getData().getContent()) {
-                        unhandledMessages.remove(m);
-                        handledMessages.add(m);
-                    }
-                } while ((block = block.getParent()) != null);
+                resetMessagesAccordingToChain();
                 if(unhandledMessages.size() >= 5) {
-                    List<Message> messageForNextBlock = new ArrayList<>();
-                    for(int i = 4; i >= 0; i--) {
-                        messageForNextBlock.add(unhandledMessages.remove(i));
+                    if(blockCreatorService.state == BlockCreatorService.State.READY) {
+                        Set<Message> blockContent = pickMessagesForPotentialBlock();
+                        blockCreatorService.createBlock(chain.getEndBlock().getData(), blockContent, this::addCreatedBlock);
                     }
-                    handledMessages.addAll(messageForNextBlock);
-                    createBlock(messageForNextBlock);
                 }
             }
         }
     }
 
-    private List<Message> pickMessagesForPotentialBlock() {
-        List<Message> messageForNextBlock = new ArrayList<>();
-        for(int i = 4; i >= 0; i--) {
-            messageForNextBlock.add(unhandledMessages.remove(i));
+    public void addCreatedBlock(Block block){
+        if(chain.getEndBlock().getData().getHash().equals(block.getParentHash())) {
+            chain.addBlock(block);
+            Application application = eurekaClient.getApplication("jchain-node");
+            List<InstanceInfo> instanceInfo = application.getInstances();
+            for(InstanceInfo info : instanceInfo) {
+                if(info.getInstanceId().equals(instanceId)) {
+                    continue;
+                }
+                informNodeOfNewBlock(Integer.toString(info.getPort()), block);
+            }
         }
+    }
+
+    private void resetMessagesAccordingToChain() {
+        unhandledMessages.addAll(handledMessages);
+        handledMessages.clear();
+        TreeNode<Block> block = chain.getEndBlock();
+        do {
+            for(Message m : block.getData().getContent()) {
+                unhandledMessages.remove(m);
+                handledMessages.add(m);
+            }
+        } while ((block = block.getParent()) != null);
+    }
+
+    private Set<Message> pickMessagesForPotentialBlock() {
+        Set<Message> messageForNextBlock = unhandledMessages.stream()
+                .limit(5)
+                .collect(Collectors.toSet());
+        unhandledMessages.removeAll(messageForNextBlock);
         handledMessages.addAll(messageForNextBlock);
         return messageForNextBlock;
     }
 
-    private void createBlock(List<Message> messages) {
-        blockCreator = new BlockCreatorTask(chain.getEndBlock().getData().getHash(), messages);
-        executor.execute(blockCreator);
-    }
-
-
-
-    public BlockChain getChain() {
-        return chain;
-    }
-
-    public List<Message> getUnprocessedMessages() {
-        return unhandledMessages;
-    }
-
-    private class BlockCreatorTask implements Runnable {
-
-        Random random;
-        String parentHash;
-        Set<Message> messages;
-        long nonce;
-        private boolean cancelled = false;
-
-        public BlockCreatorTask(String parentHash, List<Message> messages) {
-            Collections.sort(messages);
-            this.parentHash = parentHash;
-            this.messages = new LinkedHashSet<>(messages);
-            random = new Random();
-            nonce = random.nextLong();
+    @Async
+    private void informNodeOfNewBlock(String host, Block block) {
+        int delay = random.nextInt(10000) + 3000;
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-
-        public void run() {
-            String hash;
-            Block block;
-            do {
-                hash = JChainHasher.hash(parentHash, messages, Long.toString(++nonce));
-                try {
-                    Thread.sleep(4);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            } while(!JChainHasher.isValidHash(hash) && !cancelled);
-
-            if(!cancelled && chain.getEndBlock().getData().getHash().equals(parentHash)) {
-                block = new Block(hash, parentHash, messages, Long.toString(nonce));
-                chain.addBlock(block);
-                System.out.println("Created block: " + block);
-                System.out.println("Chain: " + chain);
-                Application application = eurekaClient.getApplication("jchain-node");
-                List<InstanceInfo> instanceInfo = application.getInstances();
-                for(InstanceInfo info : instanceInfo) {
-                    if(info.getInstanceId().equals(instanceId)) continue;
-                    executor.execute(new NodeInformerTask(Integer.toString(info.getPort()), block));
-                }
-            }
-            blockCreator = null;
-        }
-
-        public void cancel() {
-            this.cancelled = true;
-        }
-    }
-
-    private class NodeInformerTask implements Runnable {
-
-        private final String host;
-        private final Block block;
-        private final int delay;
-
-        public NodeInformerTask(String host, Block block) {
-            Random random = new Random();
-            this.host = host;
-            this.block = block;
-            this.delay = random.nextInt(10000) + 3000;
-        }
-
-        public void run() {
-            try {
-                Thread.sleep(delay);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.postForObject("http://localhost:" + host + "/node/block", block, Block.class);
-        }
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.postForObject("http://localhost:" + host + "/node/block", block, Block.class);
     }
 }

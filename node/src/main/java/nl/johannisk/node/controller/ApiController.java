@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping(path = "/api")
@@ -47,7 +48,7 @@ public class ApiController {
     }
 
     @RequestMapping(path = "/messages")
-    public List<Message> messages() {
+    public Set<Message> messages() {
         return blockChainService.getUnprocessedMessages();
     }
 }

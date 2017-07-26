@@ -51,7 +51,7 @@ public class WebController {
     private void addNodesToModel(Model model) {
         Application application = eurekaClient.getApplication("jchain-node");
         List<InstanceInfo> instanceInfo = application.getInstances();
-        List<String> hosts = instanceInfo.stream().map(m -> "localhost:" + m.getPort()).collect(Collectors.toList());
+        List<String> hosts = instanceInfo.stream().filter(i -> i.getStatus().equals(InstanceInfo.InstanceStatus.UP)).map(m -> "localhost:" + m.getPort()).collect(Collectors.toList());
         model.addAttribute("hosts", hosts);
     }
 
