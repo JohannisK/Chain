@@ -6,11 +6,23 @@ public class Message {
 
     public Message() {}
 
-    public Message(final int index) {
+    public Message(int index) {
         this.index = index;
     }
 
     public int getIndex() {
         return index;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }
