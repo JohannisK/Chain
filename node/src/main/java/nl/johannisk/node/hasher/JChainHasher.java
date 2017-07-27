@@ -1,10 +1,11 @@
 package nl.johannisk.node.hasher;
 
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 import nl.johannisk.node.service.model.Message;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Set;
 
 public class JChainHasher {
@@ -34,7 +35,7 @@ public class JChainHasher {
             throw new RuntimeException("Java platform does not support standard encryption", e);
         }
         messageDigest.update(blockData.getBytes());
-        return Base64.encode(messageDigest.digest());
+        return new String(Base64.getEncoder().encode(messageDigest.digest()), StandardCharsets.UTF_8);
     }
 
     public static boolean isValidHash(final String hash) {

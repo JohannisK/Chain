@@ -35,7 +35,7 @@ public class BlockCreatorService {
         do {
             hash = JChainHasher.hash(parentHash, messages, Long.toString(++nonce));
             try {
-                Thread.sleep(4);
+                Thread.sleep(6);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
