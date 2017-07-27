@@ -6,7 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class Block {
-    public static Block ZERO;
+    public static final Block ZERO;
     static {
         ZERO = new Block("0", "0", new LinkedHashSet<>(), "0");
     }
@@ -16,7 +16,10 @@ public class Block {
     private final Set<Message> contents;
     private final String nonce;
 
-    public Block(@JsonProperty("hash") String hash, @JsonProperty("parentHash") String parentHash, @JsonProperty("content") Set<Message> content, @JsonProperty("nonce") String nonce) {
+    public Block(@JsonProperty("hash") final String hash,
+                 @JsonProperty("parentHash") final String parentHash,
+                 @JsonProperty("content") final Set<Message> content,
+                 @JsonProperty("nonce") final String nonce) {
         this.hash = hash;
         this.parentHash = parentHash;
         this.contents = new LinkedHashSet<>(content);
@@ -32,7 +35,7 @@ public class Block {
     }
 
     public Set<Message> getContent() {
-        return new LinkedHashSet<Message>(contents);
+        return new LinkedHashSet<>(contents);
     }
 
     public String getNonce() {

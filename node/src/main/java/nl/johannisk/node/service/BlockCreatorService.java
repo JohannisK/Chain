@@ -37,7 +37,7 @@ public class BlockCreatorService {
             try {
                 Thread.sleep(4);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         } while(!JChainHasher.isValidHash(hash) && state.equals(State.RUNNING));
 

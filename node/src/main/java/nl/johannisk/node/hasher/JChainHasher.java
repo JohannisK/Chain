@@ -6,7 +6,6 @@ import nl.johannisk.node.service.model.Message;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class JChainHasher {
 
@@ -14,7 +13,7 @@ public class JChainHasher {
 
     }
 
-    public static String hash(String parentHash, Set<Message> content, String nonce) {
+    public static String hash(final String parentHash, final Set<Message> content, final String nonce) {
         StringBuilder b = new StringBuilder();
         b.append(parentHash);
         b.append(content.toString());
@@ -24,26 +23,30 @@ public class JChainHasher {
         try {
             messageDigest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            /*
+             * This excpetion may never be thrown.
+             *
+             * Every implementation of the Java platform is required to support the following standard MessageDigest algorithms:
+             * MD5
+             * SHA-1
+             * SHA-256
+             */
+            throw new RuntimeException("Java platform does not support standard encryption", e);
         }
         messageDigest.update(blockData.getBytes());
         return Base64.encode(messageDigest.digest());
     }
 
-    public static boolean isValidHash(String hash) {
-        String lowered = hash;//.toLowerCase();
-        int j = lowered.indexOf("J"),
-                c = lowered.indexOf("C"),
-                o = lowered.indexOf("o"),
-                r = lowered.indexOf("r"),
-                e = lowered.indexOf("e");
+    public static boolean isValidHash(final String hash) {
+        String lowered = hash;
+        int j = lowered.indexOf('J');
+        int c = lowered.indexOf('C');
+        int o = lowered.indexOf('o');
+        int r = lowered.indexOf('r');
+        int e = lowered.indexOf('e');
         return ((j != -1 && c != -1 && o != -1 && r != -1 && e != -1) && (j < c &&
                 c < o &&
                 o < r &&
                 r < e));
-    }
-
-    private static String setToContentString(Set<Message> content) {
-        return content.stream().map(m -> m.getIndex() + ":" + m.getText() + ";").collect(Collectors.joining());
     }
 }

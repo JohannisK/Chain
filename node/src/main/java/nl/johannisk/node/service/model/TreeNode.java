@@ -9,12 +9,12 @@ public class TreeNode<T> {
     private TreeNode parent = null;
     private int depth;
 
-    public TreeNode(T data) {
+    public TreeNode(final T data) {
         this.data = data;
         depth = 0;
     }
 
-    public TreeNode<T> addChild(T data) {
+    public TreeNode<T> addChild(final T data) {
         TreeNode<T> newChild = new TreeNode<>(data);
         newChild.setParent(this);
         newChild.setDepth(depth + 1);
@@ -38,11 +38,11 @@ public class TreeNode<T> {
         return depth;
     }
 
-    private void setParent(TreeNode parent) {
+    private void setParent(final TreeNode parent) {
         this.parent = parent;
     }
 
-    private void setDepth(int depth) {
+    private void setDepth(final int depth) {
         this.depth = depth;
     }
 }

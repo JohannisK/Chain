@@ -21,7 +21,7 @@ public class BlockChain {
         maxDepth = 0;
     }
 
-    public boolean addBlock(Block block) {
+    public boolean addBlock(final Block block) {
         if(blocks.containsKey(block.getParentHash())) {
             TreeNode<Block> parentBlock = blocks.get(block.getParentHash());
             TreeNode<Block> newNode = parentBlock.addChild(block);
@@ -35,8 +35,25 @@ public class BlockChain {
         return false;
     }
 
-    public synchronized TreeNode<Block> getEndBlock() {
+    public boolean contains(final Block b) {
+        return blocks.containsKey(b.getHash());
+    }
+
+    public TreeNode<Block> getEndBlock() {
         return endBlock;
+    }
+
+    public List<Block> getOrphanedBlocks() {
+        List<Block> blocksInChain = new ArrayList<>();
+        TreeNode<Block> b = endBlock;
+        do {
+            blocksInChain.add(b.getData());
+            b = b.getParent();
+        } while (b != null);
+        return blocks.values().stream()
+                .map(TreeNode::getData)
+                .filter(block -> !blocksInChain.contains(block))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -54,19 +71,5 @@ public class BlockChain {
         } while ((block = block.getParent()) != null);
 
         return b.toString();
-    }
-
-    public boolean contains(Block b) {
-        return blocks.containsKey(b.getHash());
-    }
-
-    public List<Block> getOrphanedBlocks() {
-        List<Block> blocksInChain = new ArrayList<>();
-        TreeNode<Block> b = endBlock;
-        do {
-            blocksInChain.add(b.getData());
-            b = b.getParent();
-        } while (b != null);
-        return blocks.values().stream().map(t -> t.getData()).filter(block -> !blocksInChain.contains(block)).collect(Collectors.toList());
     }
 }

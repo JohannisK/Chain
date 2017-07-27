@@ -6,7 +6,7 @@ public class Message implements Comparable{
     final int index;
     final String text;
 
-    public Message(@JsonProperty("index") int index, @JsonProperty("text") String text) {
+    public Message(@JsonProperty("index") final int index, @JsonProperty("text") final String text) {
         this.index = index;
         this.text = text;
     }
@@ -20,7 +20,7 @@ public class Message implements Comparable{
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -41,7 +41,6 @@ public class Message implements Comparable{
                 ", text='" + text + '\'' +
                 '}';
     }
-
 
     @Override
     public int compareTo(Object o) {

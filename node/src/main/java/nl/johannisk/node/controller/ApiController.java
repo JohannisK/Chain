@@ -1,6 +1,5 @@
 package nl.johannisk.node.controller;
 
-import com.netflix.discovery.EurekaClient;
 import nl.johannisk.node.service.BlockChainService;
 import nl.johannisk.node.service.model.Block;
 import nl.johannisk.node.service.model.BlockChain;
@@ -19,13 +18,11 @@ import java.util.Set;
 @RequestMapping(path = "/api")
 public class ApiController {
 
-    private BlockChainService blockChainService;
-    private EurekaClient eurekaClient;
+    private final BlockChainService blockChainService;
 
     @Autowired
-    public ApiController(BlockChainService blockChainService, EurekaClient eurekaClient) {
+    public ApiController(final BlockChainService blockChainService) {
         this.blockChainService = blockChainService;
-        this.eurekaClient = eurekaClient;
     }
 
 

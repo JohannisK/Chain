@@ -14,23 +14,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/node")
 public class NodeController {
 
-    private final EurekaClient eurekaClient;
     private final BlockChainService blockChain;
 
     @Autowired
-    public NodeController(EurekaClient eurekaClient, BlockChainService blockChain) {
-        this.eurekaClient = eurekaClient;
+    public NodeController(final BlockChainService blockChain) {
         this.blockChain = blockChain;
     }
 
 
     @PostMapping (path = "/message")
-    public void message(@RequestBody Message message) {
+    public void message(@RequestBody final Message message) {
         blockChain.addMessage(message);
     }
 
     @PostMapping (path = "/block")
-    public void message(@RequestBody Block block) {
+    public void message(@RequestBody final Block block) {
         blockChain.addBlock(block);
     }
 }
