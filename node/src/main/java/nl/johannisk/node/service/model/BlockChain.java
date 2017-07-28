@@ -14,7 +14,7 @@ public class BlockChain {
     private int maxDepth = 0;
 
     public BlockChain() {
-        root = new TreeNode<>(Block.ZERO);
+        root = new TreeNode<>(null, Block.ZERO, 0);
         blocks = new HashMap<>();
         blocks.put("0", root);
         endBlock = root;
@@ -35,7 +35,7 @@ public class BlockChain {
         return false;
     }
 
-    public boolean contains(final Block b) {
+    public boolean containsBlock(final Block b) {
         return blocks.containsKey(b.getHash());
     }
 
@@ -54,22 +54,5 @@ public class BlockChain {
                 .map(TreeNode::getData)
                 .filter(block -> !blocksInChain.contains(block))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder b = new StringBuilder();
-        b.append(System.lineSeparator());
-        b.append("CHAIN").append(System.lineSeparator());
-        TreeNode<Block> block = endBlock;
-        do {
-            b.append("  >> HASH:        ").append(block.getData().getHash()).append(System.lineSeparator());
-            b.append("  >> PARENT HASH: ").append(block.getData().getParentHash()).append(System.lineSeparator());
-            b.append("  >> NONCE:       ").append(block.getData().getNonce()).append(System.lineSeparator());
-            b.append("  >> CONTENT:     ").append(block.getData().getContent()).append(System.lineSeparator());
-            b.append(System.lineSeparator());
-        } while ((block = block.getParent()) != null);
-
-        return b.toString();
     }
 }

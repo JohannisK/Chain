@@ -4,20 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TreeNode<T> {
-    private T data = null;
-    private List<TreeNode> children = new ArrayList<>();
-    private TreeNode parent = null;
-    private int depth;
+    private final T data;
+    private final List<TreeNode> children = new ArrayList<>();
+    private final TreeNode parent;
+    private final int depth;
 
-    public TreeNode(final T data) {
+    public TreeNode(final TreeNode<T> parent, final T data, final int depth) {
+        this.parent = parent;
         this.data = data;
-        depth = 0;
+        this.depth = depth;
     }
 
     public TreeNode<T> addChild(final T data) {
-        TreeNode<T> newChild = new TreeNode<>(data);
-        newChild.setParent(this);
-        newChild.setDepth(depth + 1);
+        TreeNode<T> newChild = new TreeNode<>(this, data, depth + 1);
         this.children.add(newChild);
         return newChild;
     }
@@ -36,13 +35,5 @@ public class TreeNode<T> {
 
     public int getDepth() {
         return depth;
-    }
-
-    private void setParent(final TreeNode parent) {
-        this.parent = parent;
-    }
-
-    private void setDepth(final int depth) {
-        this.depth = depth;
     }
 }

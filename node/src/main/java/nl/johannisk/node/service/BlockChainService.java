@@ -17,8 +17,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.netflix.appinfo.AmazonInfo.MetaDataKey.instanceId;
-
 @Service
 public class BlockChainService {
 
@@ -61,11 +59,11 @@ public class BlockChainService {
         }
     }
 
-    public void addBlock(final Block b) {
-        String hash = JChainHasher.hash(b.getParentHash(), b.getContent(), b.getNonce());
-        if (JChainHasher.isValidHash(hash) && b.getHash().equals(hash) && !chain.contains(b)) {
+    public void addBlock(final Block block) {
+        String hash = JChainHasher.hash(block.getParentHash(), block.getContent(), block.getNonce());
+        if (JChainHasher.isValidHash(hash) && block.getHash().equals(hash) && !chain.containsBlock(block)) {
             String lastBlockHash = chain.getEndBlock().getData().getHash();
-            chain.addBlock(b);
+            chain.addBlock(block);
             if (!chain.getEndBlock().getData().getHash().equals(lastBlockHash)) {
                 if (blockCreatorService.state == BlockCreatorService.State.RUNNING) {
                     blockCreatorService.state = BlockCreatorService.State.CANCELLED;
