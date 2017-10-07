@@ -1,6 +1,5 @@
 package nl.johannisk.node.controller;
 
-import com.netflix.discovery.EurekaClient;
 import nl.johannisk.node.service.BlockChainService;
 import nl.johannisk.node.service.model.Block;
 import nl.johannisk.node.service.model.Message;

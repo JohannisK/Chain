@@ -76,7 +76,6 @@ public class BlockChainService {
                     Set<Message> blockContent = pickMessagesForPotentialBlock();
                     blockCreatorService.createBlock(chain.getEndBlock().getData(), blockContent, this::addCreatedBlock);
                 }
-
             }
         }
     }
