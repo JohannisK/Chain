@@ -14,21 +14,24 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class BlockChainService {
 
     @Value("${eureka.instance.instanceId}")
-    String instanceId;
+    private String instanceId;
 
-    final Set<Message> unhandledMessages;
-    final Set<Message> handledMessages;
-    final BlockChain chain;
+    private final Set<Message> unhandledMessages;
+    private final Set<Message> handledMessages;
+    private final BlockChain chain;
     private BlockCreatorService blockCreatorService;
     private final EurekaClient eurekaClient;
-    Random random;
+    private Random random;
 
     @Autowired
     public BlockChainService(final BlockCreatorService blockCreatorService, final EurekaClient eurekaClient) {
@@ -73,12 +76,11 @@ public class BlockChainService {
                     Set<Message> blockContent = pickMessagesForPotentialBlock();
                     blockCreatorService.createBlock(chain.getEndBlock().getData(), blockContent, this::addCreatedBlock);
                 }
-
             }
         }
     }
 
-    public void addCreatedBlock(final Block block) {
+    private void addCreatedBlock(final Block block) {
         if (chain.getEndBlock().getData().getHash().equals(block.getParentHash())) {
             chain.addBlock(block);
             Application application = eurekaClient.getApplication("jchain-node");

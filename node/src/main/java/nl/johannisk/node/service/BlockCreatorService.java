@@ -28,7 +28,7 @@ public class BlockCreatorService {
     }
 
     @Async
-    public void createBlock(Block parentBlock, Set<Message> messages, Consumer<Block> consumer) {
+    void createBlock(Block parentBlock, Set<Message> messages, Consumer<Block> consumer) {
         state = State.RUNNING;
         String hash;
         String parentHash = parentBlock.getHash();
@@ -40,9 +40,9 @@ public class BlockCreatorService {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        } while(!JChainHasher.isValidHash(hash) && state.equals(State.RUNNING));
+        } while (!JChainHasher.isValidHash(hash) && state.equals(State.RUNNING));
 
-        if(state.equals(State.RUNNING)) {
+        if (state.equals(State.RUNNING)) {
             consumer.accept(new Block(hash, parentHash, messages, Long.toString(nonce)));
         }
         state = State.READY;
