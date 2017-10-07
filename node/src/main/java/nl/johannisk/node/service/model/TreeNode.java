@@ -1,6 +1,7 @@
 package nl.johannisk.node.service.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TreeNode<T> {
     private final T data;

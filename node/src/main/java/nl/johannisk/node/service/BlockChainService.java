@@ -1,17 +1,24 @@
 package nl.johannisk.node.service;
 
-import com.netflix.appinfo.*;
-import com.netflix.discovery.*;
-import com.netflix.discovery.shared.*;
-import nl.johannisk.node.hasher.*;
-import nl.johannisk.node.service.model.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.scheduling.annotation.*;
-import org.springframework.stereotype.*;
-import org.springframework.web.client.*;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.shared.Application;
+import nl.johannisk.node.hasher.JChainHasher;
+import nl.johannisk.node.service.model.Block;
+import nl.johannisk.node.service.model.BlockChain;
+import nl.johannisk.node.service.model.Message;
+import nl.johannisk.node.service.model.TreeNode;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
-import java.util.stream.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class BlockChainService {

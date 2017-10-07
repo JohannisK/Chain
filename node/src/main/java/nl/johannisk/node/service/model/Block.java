@@ -1,9 +1,10 @@
 package nl.johannisk.node.service.model;
 
-import com.fasterxml.jackson.annotation.*;
-import com.google.common.base.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class Block {
     public static final Block ZERO;

@@ -1,12 +1,14 @@
 package nl.johannisk.node.service;
 
-import nl.johannisk.node.hasher.*;
-import nl.johannisk.node.service.model.*;
-import org.springframework.scheduling.annotation.*;
-import org.springframework.stereotype.*;
+import nl.johannisk.node.hasher.JChainHasher;
+import nl.johannisk.node.service.model.Block;
+import nl.johannisk.node.service.model.Message;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.function.*;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Consumer;
 
 @Service
 public class BlockCreatorService {

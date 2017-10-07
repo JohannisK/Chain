@@ -1,10 +1,12 @@
 package nl.johannisk.node.hasher;
 
-import nl.johannisk.node.service.model.*;
+import nl.johannisk.node.service.model.Message;
 
-import java.nio.charset.*;
-import java.security.*;
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Set;
 
 public class JChainHasher {
     private JChainHasher() {
