@@ -1,12 +1,11 @@
 package nl.johannisk.node.service.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class TreeNode<T> {
     private final T data;
-    private final List<TreeNode> children = new ArrayList<>();
-    private final TreeNode parent;
+    private final List<TreeNode<T>> children = new ArrayList<>();
+    private final TreeNode<T> parent;
     private final int depth;
 
     public TreeNode(final TreeNode<T> parent, final T data, final int depth) {
@@ -21,11 +20,11 @@ public class TreeNode<T> {
         return newChild;
     }
 
-    public List<TreeNode> getChildren() {
+    public List<TreeNode<T>> getChildren() {
         return children;
     }
 
-    public TreeNode getParent() {
+    public TreeNode<T> getParent() {
         return parent;
     }
 

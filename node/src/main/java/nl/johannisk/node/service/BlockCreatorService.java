@@ -1,14 +1,12 @@
 package nl.johannisk.node.service;
 
-import nl.johannisk.node.hasher.JChainHasher;
-import nl.johannisk.node.service.model.Block;
-import nl.johannisk.node.service.model.Message;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
+import nl.johannisk.node.hasher.*;
+import nl.johannisk.node.service.model.*;
+import org.springframework.scheduling.annotation.*;
+import org.springframework.stereotype.*;
 
-import java.util.Random;
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.*;
+import java.util.function.*;
 
 @Service
 public class BlockCreatorService {
@@ -28,7 +26,7 @@ public class BlockCreatorService {
     }
 
     @Async
-    public void createBlock(Block parentBlock, Set<Message> messages, Consumer<Block> consumer) {
+    void createBlock(Block parentBlock, Set<Message> messages, Consumer<Block> consumer) {
         state = State.RUNNING;
         String hash;
         String parentHash = parentBlock.getHash();
@@ -40,9 +38,9 @@ public class BlockCreatorService {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        } while(!JChainHasher.isValidHash(hash) && state.equals(State.RUNNING));
+        } while (!JChainHasher.isValidHash(hash) && state.equals(State.RUNNING));
 
-        if(state.equals(State.RUNNING)) {
+        if (state.equals(State.RUNNING)) {
             consumer.accept(new Block(hash, parentHash, messages, Long.toString(nonce)));
         }
         state = State.READY;

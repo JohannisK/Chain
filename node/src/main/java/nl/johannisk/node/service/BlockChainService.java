@@ -1,34 +1,30 @@
 package nl.johannisk.node.service;
 
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.EurekaClient;
-import com.netflix.discovery.shared.Application;
-import nl.johannisk.node.hasher.JChainHasher;
-import nl.johannisk.node.service.model.Block;
-import nl.johannisk.node.service.model.BlockChain;
-import nl.johannisk.node.service.model.Message;
-import nl.johannisk.node.service.model.TreeNode;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import com.netflix.appinfo.*;
+import com.netflix.discovery.*;
+import com.netflix.discovery.shared.*;
+import nl.johannisk.node.hasher.*;
+import nl.johannisk.node.service.model.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.scheduling.annotation.*;
+import org.springframework.stereotype.*;
+import org.springframework.web.client.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 
 @Service
 public class BlockChainService {
 
     @Value("${eureka.instance.instanceId}")
-    String instanceId;
+    private String instanceId;
 
-    final Set<Message> unhandledMessages;
-    final Set<Message> handledMessages;
-    final BlockChain chain;
+    private final Set<Message> unhandledMessages;
+    private final Set<Message> handledMessages;
+    private final BlockChain chain;
     private BlockCreatorService blockCreatorService;
     private final EurekaClient eurekaClient;
-    Random random;
+    private Random random;
 
     @Autowired
     public BlockChainService(final BlockCreatorService blockCreatorService, final EurekaClient eurekaClient) {
@@ -78,7 +74,7 @@ public class BlockChainService {
         }
     }
 
-    public void addCreatedBlock(final Block block) {
+    private void addCreatedBlock(final Block block) {
         if (chain.getEndBlock().getData().getHash().equals(block.getParentHash())) {
             chain.addBlock(block);
             Application application = eurekaClient.getApplication("jchain-node");
