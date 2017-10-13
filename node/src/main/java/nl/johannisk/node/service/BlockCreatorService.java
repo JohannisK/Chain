@@ -19,12 +19,12 @@ public class BlockCreatorService {
         CANCELLED
     }
 
-    final Random random;
-    State state;
+    private final Random random;
+    private State state;
 
     public BlockCreatorService() {
-        random = new Random();
-        state = State.READY;
+        this.random = new Random();
+        this.state = State.READY;
     }
 
     @Async
