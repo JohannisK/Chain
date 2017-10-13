@@ -10,8 +10,8 @@ import static org.junit.Assert.*;
 
 public class BlockTest {
 
-    Block subject;
-    Set<Message> messageSet;
+    private Block subject;
+    private Set<Message> messageSet;
 
     @Before
     public void setup() {
