@@ -1,12 +1,14 @@
 package nl.johannisk.node.service.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class Block {
+public final class Block {
     public static final Block ZERO;
+
     static {
         ZERO = new Block("0", "0", new LinkedHashSet<>(), "0");
     }
@@ -44,11 +46,11 @@ public class Block {
 
     @Override
     public String toString() {
-        return "Block{" +
-                "hash='" + hash + '\'' +
-                ", parentHash='" + parentHash + '\'' +
-                ", contents=" + contents +
-                ", nonce='" + nonce + '\'' +
-                '}';
+        return MoreObjects.toStringHelper(this)
+                .add("hash", hash)
+                .add("parentHash", parentHash)
+                .add("contents", contents)
+                .add("nonce", nonce)
+                .toString();
     }
 }

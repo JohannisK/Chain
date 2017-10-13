@@ -19,16 +19,16 @@ public class BlockCreatorService {
         CANCELLED
     }
 
-    final Random random;
-    State state;
+    private final Random random;
+    private State state;
 
     public BlockCreatorService() {
-        random = new Random();
-        state = State.READY;
+        this.random = new Random();
+        this.state = State.READY;
     }
 
     @Async
-    public void createBlock(Block parentBlock, Set<Message> messages, Consumer<Block> consumer) {
+    void createBlock(Block parentBlock, Set<Message> messages, Consumer<Block> consumer) {
         state = State.RUNNING;
         String hash;
         String parentHash = parentBlock.getHash();
@@ -40,9 +40,9 @@ public class BlockCreatorService {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        } while(!JChainHasher.isValidHash(hash) && state.equals(State.RUNNING));
+        } while (!JChainHasher.isValidHash(hash) && state.equals(State.RUNNING));
 
-        if(state.equals(State.RUNNING)) {
+        if (state.equals(State.RUNNING)) {
             consumer.accept(new Block(hash, parentHash, messages, Long.toString(nonce)));
         }
         state = State.READY;

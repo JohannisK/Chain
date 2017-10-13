@@ -1,10 +1,11 @@
 package nl.johannisk.node.service.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
 
-public class Message implements Comparable{
-    final int index;
-    final String text;
+public final class Message implements Comparable {
+    private final int index;
+    private final String text;
 
     public Message(@JsonProperty("index") final int index, @JsonProperty("text") final String text) {
         this.index = index;
@@ -21,10 +22,14 @@ public class Message implements Comparable{
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || !getClass().equals(o.getClass())) {
+            return false;
+        }
 
-        Message message = (Message) o;
+        final Message message = (Message) o;
 
         return index == message.index;
     }
@@ -36,16 +41,16 @@ public class Message implements Comparable{
 
     @Override
     public String toString() {
-        return "Message{" +
-                "index=" + index +
-                ", text='" + text + '\'' +
-                '}';
+        return MoreObjects.toStringHelper(this)
+                .add("index", index)
+                .add("text", text)
+                .toString();
     }
 
     @Override
-    public int compareTo(Object o) {
-        if(o instanceof Message) {
-            Message m = (Message)o;
+    public int compareTo(final Object o) {
+        if (o instanceof Message) {
+            Message m = (Message) o;
             return this.getIndex() - m.getIndex();
         }
         return 0;

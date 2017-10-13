@@ -14,30 +14,33 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class BlockChainService {
 
     @Value("${eureka.instance.instanceId}")
-    String instanceId;
+    private String instanceId;
 
-    final Set<Message> unhandledMessages;
-    final Set<Message> handledMessages;
-    final BlockChain chain;
-    private BlockCreatorService blockCreatorService;
+    private final Set<Message> unhandledMessages;
+    private final Set<Message> handledMessages;
+    private final BlockChain chain;
+    private final BlockCreatorService blockCreatorService;
     private final EurekaClient eurekaClient;
-    Random random;
+    private final Random random;
 
     @Autowired
     public BlockChainService(final BlockCreatorService blockCreatorService, final EurekaClient eurekaClient) {
         this.blockCreatorService = blockCreatorService;
         this.eurekaClient = eurekaClient;
-        unhandledMessages = new HashSet<>();
-        handledMessages = new HashSet<>();
-        chain = new BlockChain();
-        random = new Random();
+        this.unhandledMessages = new HashSet<>();
+        this.handledMessages = new HashSet<>();
+        this.chain = new BlockChain();
+        this.random = new Random();
     }
 
     public BlockChain getChain() {
@@ -52,7 +55,7 @@ public class BlockChainService {
         if (!handledMessages.contains(m) && !unhandledMessages.contains(m)) {
             unhandledMessages.add(m);
             if (unhandledMessages.size() >= 5 && blockCreatorService.state == BlockCreatorService.State.READY) {
-                Set<Message> blockContent = pickMessagesForPotentialBlock();
+                final Set<Message> blockContent = pickMessagesForPotentialBlock();
                 blockCreatorService.createBlock(chain.getEndBlock().getData(), blockContent, this::addCreatedBlock);
             }
 
@@ -60,9 +63,9 @@ public class BlockChainService {
     }
 
     public void addBlock(final Block block) {
-        String hash = JChainHasher.hash(block.getParentHash(), block.getContent(), block.getNonce());
+        final String hash = JChainHasher.hash(block.getParentHash(), block.getContent(), block.getNonce());
         if (JChainHasher.isValidHash(hash) && block.getHash().equals(hash) && !chain.containsBlock(block)) {
-            String lastBlockHash = chain.getEndBlock().getData().getHash();
+            final String lastBlockHash = chain.getEndBlock().getData().getHash();
             chain.addBlock(block);
             if (!chain.getEndBlock().getData().getHash().equals(lastBlockHash)) {
                 if (blockCreatorService.state == BlockCreatorService.State.RUNNING) {
@@ -70,19 +73,18 @@ public class BlockChainService {
                 }
                 resetMessagesAccordingToChain();
                 if (unhandledMessages.size() >= 5 && blockCreatorService.state == BlockCreatorService.State.READY) {
-                    Set<Message> blockContent = pickMessagesForPotentialBlock();
+                    final Set<Message> blockContent = pickMessagesForPotentialBlock();
                     blockCreatorService.createBlock(chain.getEndBlock().getData(), blockContent, this::addCreatedBlock);
                 }
-
             }
         }
     }
 
-    public void addCreatedBlock(final Block block) {
+    private void addCreatedBlock(final Block block) {
         if (chain.getEndBlock().getData().getHash().equals(block.getParentHash())) {
             chain.addBlock(block);
-            Application application = eurekaClient.getApplication("jchain-node");
-            List<InstanceInfo> instanceInfo = application.getInstances();
+            final Application application = eurekaClient.getApplication("jchain-node");
+            final List<InstanceInfo> instanceInfo = application.getInstances();
             for (InstanceInfo info : instanceInfo) {
                 if (info.getInstanceId().equals(instanceId)) {
                     continue;
@@ -105,7 +107,7 @@ public class BlockChainService {
     }
 
     private Set<Message> pickMessagesForPotentialBlock() {
-        Set<Message> messageForNextBlock = unhandledMessages.stream()
+        final Set<Message> messageForNextBlock = unhandledMessages.stream()
                 .limit(5)
                 .collect(Collectors.toSet());
         unhandledMessages.removeAll(messageForNextBlock);
@@ -115,13 +117,13 @@ public class BlockChainService {
 
     @Async
     private void informNodeOfNewBlock(final String host, final Block block) {
-        int delay = random.nextInt(10000) + 3000;
+        final int delay = random.nextInt(10000) + 3000;
         try {
             Thread.sleep(delay);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        RestTemplate restTemplate = new RestTemplate();
+        final RestTemplate restTemplate = new RestTemplate();
         restTemplate.postForObject("http://localhost:" + host + "/node/block", block, Block.class);
     }
 }

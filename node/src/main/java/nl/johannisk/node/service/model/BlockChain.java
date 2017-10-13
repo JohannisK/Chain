@@ -21,18 +21,16 @@ public class BlockChain {
         maxDepth = 0;
     }
 
-    public boolean addBlock(final Block block) {
+    public void addBlock(final Block block) {
         if(blocks.containsKey(block.getParentHash())) {
-            TreeNode<Block> parentBlock = blocks.get(block.getParentHash());
-            TreeNode<Block> newNode = parentBlock.addChild(block);
+            final TreeNode<Block> parentBlock = blocks.get(block.getParentHash());
+            final TreeNode<Block> newNode = parentBlock.addChild(block);
             if (newNode.getDepth() > maxDepth) {
                 maxDepth = newNode.getDepth();
                 endBlock = newNode;
             }
             blocks.put(block.getHash(), newNode);
-            return true;
         }
-        return false;
     }
 
     public boolean containsBlock(final Block b) {
@@ -44,7 +42,7 @@ public class BlockChain {
     }
 
     public List<Block> getOrphanedBlocks() {
-        List<Block> blocksInChain = new ArrayList<>();
+        final List<Block> blocksInChain = new ArrayList<>();
         TreeNode<Block> b = endBlock;
         do {
             blocksInChain.add(b.getData());
