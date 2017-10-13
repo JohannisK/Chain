@@ -28,8 +28,8 @@ public class ApiController {
 
     @RequestMapping(path = "/chain")
     public List<Block> chain() {
-        BlockChain blockChain = blockChainService.getChain();
-        List<Block> mainChain = new LinkedList<>();
+        final BlockChain blockChain = blockChainService.getChain();
+        final List<Block> mainChain = new LinkedList<>();
         TreeNode<Block> b = blockChain.getEndBlock();
         do {
             mainChain.add(b.getData());

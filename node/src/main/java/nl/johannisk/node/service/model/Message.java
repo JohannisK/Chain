@@ -29,7 +29,7 @@ public final class Message implements Comparable {
             return false;
         }
 
-        Message message = (Message) o;
+        final Message message = (Message) o;
 
         return index == message.index;
     }
